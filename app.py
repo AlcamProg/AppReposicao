@@ -2,6 +2,46 @@ import streamlit as st
 import json
 import urllib.parse
 
+import streamlit as st
+import base64
+
+st.set_page_config(page_title="ALCAM", layout="wide")
+
+# carregar a imagem e converter para base64
+def img_to_base64(path):
+    with open(path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+logo_base64 = img_to_base64("imagens/Logo.png")
+
+st.markdown(f"""
+<style>
+.header {{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 2px solid #ddd;
+    background-color: #fafafa;
+}}
+.header img {{
+    height: 70px;
+    margin-right: 15px;
+}}
+.header h1 {{
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+}}
+</style>
+
+<div class="header">
+    <img src="data:image/png;base64,{logo_base64}">
+    <h1>ALCAM — Reposição de Peças</h1>
+</div>
+""", unsafe_allow_html=True)
+
+
 # -----------------------------------------------------------
 # 1. Ler parâmetro ?cliente= na URL
 # -----------------------------------------------------------
@@ -34,8 +74,8 @@ pecas = dados_cliente.get("pecas", [])
 # 3. Layout do Streamlit — todas as peças exibidas com IMAGENS
 # -----------------------------------------------------------
 
-st.title(f"Reposição de Peças — {nome_cliente}")
-st.write("Selecione as peças desejadas abaixo:")
+st.header(f"Reposição de Peças — {nome_cliente}")
+st.subheader("Selecione as peças desejadas abaixo:")
 
 pecas_selecionadas = []
 quantidades = {}
@@ -45,7 +85,7 @@ st.subheader("📦 Lista de Peças Disponíveis")
 for peca in pecas:
     st.markdown("---")
 
-    col_img, col_info, col_sel = st.columns([1.4, 3, 1])
+    col_img, col_info, col_sel = st.columns([1.4, 3, 1.1])
 
     # -------------------- IMAGEM --------------------
     with col_img:
@@ -72,7 +112,7 @@ for peca in pecas:
 
         if adicionar:
             qtd = st.number_input(
-                "Qtd",
+                "Quantidade",
                 min_value=1,
                 step=1,
                 key=f"qtd_{peca['codigo']}"
