@@ -1,0 +1,25 @@
+{
+  "cliente": "Cliente A",
+  "vendedor": "Leo",
+  "contato_vendedor": "5515991578452",
+  "pecas": [
+  {
+    "nome": "Botão de Emergência",
+    "codigo": "BTE-01",
+    "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar.",
+    "imagem": "imagens/botao_emergencia.jpg"
+  },
+  {
+    "nome": "Chave Seccionadora",
+    "codigo": "CHS-32",
+    "descricao": "Chave seccionadora trifásica 32A com manopla externa.",
+    "imagem": "imagens/chave_seccionadora.jpg"
+  },
+  {
+    "nome": "Relé de Segurança",
+    "codigo": "RLS-2N",
+    "descricao": "Relé de segurança com duas saídas de segurança e monitoramento de emergência.",
+    "imagem": "imagens/rele_seguranca.jpg"
+  }
+]
+}
