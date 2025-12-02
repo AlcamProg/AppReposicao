@@ -3,125 +3,117 @@ import json
 import os
 from PIL import Image
 
-# -----------------------------------------------------------
-# 1. Proteção por rota secreta
-# -----------------------------------------------------------
-params = st.query_params
+# ===========================
+# AUTENTICAÇÃO POR SENHA
+# ===========================
+st.set_page_config(page_title="Criar Catálogo", page_icon="🔐")
 
-if params.get("admin") != "criar":
-    st.error("Acesso restrito. Esta página é exclusiva para administradores.")
+PASSWORD = "SV2024"  # Troque se quiser
+
+st.title("🔐 Área Restrita")
+
+senha = st.text_input("Digite a senha para continuar:", type="password")
+
+if senha != PASSWORD:
+    st.warning("Área restrita. Informe a senha correta.")
     st.stop()
 
-st.title("📘 Criar novo catálogo de cliente")
+# ===========================
+# FORMULÁRIO DO CATÁLOGO
+# ===========================
 
+st.title("📘 Criar Catálogo")
 
-# -----------------------------------------------------------
-# 2. Formulário básico do catálogo
-# -----------------------------------------------------------
+# Dados gerais
+st.subheader("📌 Dados do Cliente")
 
-st.subheader("Informações do Cliente")
-
-cliente = st.text_input("Nome do Cliente (ex: Cliente A)")
+cliente = st.text_input("Nome do Cliente")
 vendedor = st.text_input("Nome do Vendedor")
-contato_vendedor = st.text_input("Número do WhatsApp do vendedor (ex: 5515999999999)")
+contato = st.text_input("Contato do Vendedor (ex: 5515999999999)")
 
+# Lista de peças
+st.subheader("🔧 Peças do Catálogo")
 
-# -----------------------------------------------------------
-# 3. Cadastro das Peças
-# -----------------------------------------------------------
+if "pecas" not in st.session_state:
+    st.session_state.pecas = []
 
-st.subheader("📦 Peças do Catálogo")
+# Adicionar nova peça
+st.markdown("### ➕ Adicionar nova peça")
 
-# Guarda lista de peças
-if "pecas_temp" not in st.session_state:
-    st.session_state.pecas_temp = []
+nome_peca = st.text_input("Nome da Peça")
+codigo_peca = st.text_input("Código da Peça")
+descricao_peca = st.text_area("Descrição da Peça")
 
-with st.form("form_peca"):
-    st.write("### Adicionar nova peça")
+# UPLOAD DA IMAGEM
+uploaded_image = st.file_uploader("Enviar imagem da peça", type=["png", "jpg", "jpeg"])
 
-    nome_peca = st.text_input("Nome da peça")
-    codigo_peca = st.text_input("Código da peça")
-    descricao_peca = st.text_area("Descrição da peça")
+if st.button("Adicionar Peça"):
+    if not nome_peca or not codigo_peca:
+        st.error("Nome e código da peça são obrigatórios!")
 
-    imagem_peca = st.file_uploader("Imagem da peça", type=["png", "jpg", "jpeg"])
+    elif uploaded_image is None:
+        st.error("Envie uma imagem para a peça!")
 
-    adicionar = st.form_submit_button("Adicionar peça")
+    else:
+        # Criar diretório imagens se não existir
+        os.makedirs("imagens", exist_ok=True)
 
-    if adicionar:
-        if nome_peca == "" or codigo_peca == "" or descricao_peca == "":
-            st.error("Preencha todos os campos da peça antes de adicionar.")
-        else:
-            st.session_state.pecas_temp.append({
-                "nome": nome_peca,
-                "codigo": codigo_peca,
-                "descricao": descricao_peca,
-                "imagem_file": imagem_peca  # guardamos o arquivo para salvar depois
-            })
-            st.success(f"Peça '{nome_peca}' adicionada!")
+        # Definir nome do arquivo final
+        img_extension = uploaded_image.name.split(".")[-1]
+        img_save_name = f"{codigo_peca}.{img_extension}"
+        img_path = os.path.join("imagens", img_save_name)
 
+        # Salvar a imagem enviada
+        image = Image.open(uploaded_image)
+        image.save(img_path)
 
-# -----------------------------------------------------------
-# 4. Mostrar peças adicionadas
-# -----------------------------------------------------------
+        # Registrar no catálogo
+        nova_peca = {
+            "nome": nome_peca,
+            "codigo": codigo_peca,
+            "descricao": descricao_peca,
+            "imagem": img_path.replace("\\", "/")   # Normaliza caminho
+        }
 
-st.write("### 📝 Peças cadastradas até agora:")
+        st.session_state.pecas.append(nova_peca)
+        st.success(f"Peça '{nome_peca}' adicionada com sucesso!")
 
-for p in st.session_state.pecas_temp:
-    st.write(f"**{p['nome']}** — {p['codigo']}")
-    st.write(p["descricao"])
-    if p["imagem_file"] is not None:
-        st.image(p["imagem_file"], width=150)
+# Exibir lista de peças adicionadas
+st.markdown("### 📄 Peças já adicionadas")
 
+if len(st.session_state.pecas) == 0:
+    st.info("Nenhuma peça adicionada ainda.")
+else:
+    for i, p in enumerate(st.session_state.pecas):
+        st.write(f"**{i+1}. {p['nome']}** — {p['codigo']}")
+        st.write(f"Descrição: {p['descricao']}")
+        st.write(f"Imagem salva em: `{p['imagem']}`")
+        st.image(p["imagem"], width=150)
+        st.write("---")
 
-# -----------------------------------------------------------
-# 5. Salvar o catálogo final
-# -----------------------------------------------------------
+# ===========================
+# SALVAR JSON
+# ===========================
+
+OUTPUT_DIR = "clientes"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 if st.button("💾 Salvar Catálogo"):
+    if not cliente or not vendedor or not contato:
+        st.error("Cliente, vendedor e contato são obrigatórios!")
+    elif len(st.session_state.pecas) == 0:
+        st.error("Você precisa adicionar pelo menos uma peça!")
+    else:
+        data = {
+            "cliente": cliente,
+            "vendedor": vendedor,
+            "contato_vendedor": contato,
+            "pecas": st.session_state.pecas
+        }
 
-    if cliente == "" or vendedor == "" or contato_vendedor == "":
-        st.error("Preencha todas as informações do cliente antes de salvar.")
-        st.stop()
+        filename = f"{OUTPUT_DIR}/{cliente.replace(' ', '_').lower()}.json"
 
-    if len(st.session_state.pecas_temp) == 0:
-        st.error("Adicione pelo menos uma peça.")
-        st.stop()
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
 
-    # Criar pastas se não existirem
-    os.makedirs("catalogos", exist_ok=True)
-    os.makedirs("imagens", exist_ok=True)
-
-    lista_pecas_json = []
-
-    # Salvar imagens e montar JSON
-    for p in st.session_state.pecas_temp:
-        nome_img = f"{p['codigo']}.jpg"
-        caminho_img = os.path.join("imagens", nome_img)
-
-        if p["imagem_file"] is not None:
-            img = Image.open(p["imagem_file"])
-            img.save(caminho_img)
-
-        lista_pecas_json.append({
-            "nome": p["nome"],
-            "codigo": p["codigo"],
-            "descricao": p["descricao"],
-            "imagem": caminho_img.replace("\\", "/")
-        })
-
-    # Montar JSON final
-    catalogo = {
-        "cliente": cliente,
-        "vendedor": vendedor,
-        "contato_vendedor": contato_vendedor,
-        "pecas": lista_pecas_json
-    }
-
-    # Salvar arquivo JSON
-    nome_arquivo = f"catalogos/{cliente.lower().replace(' ', '_')}.json"
-
-    with open(nome_arquivo, "w", encoding="utf-8") as f:
-        json.dump(catalogo, f, indent=4, ensure_ascii=False)
-
-    st.success(f"Catálogo do cliente '{cliente}' salvo com sucesso!")
-    st.info(f"Arquivo criado: {nome_arquivo}")
+        st.success(f"Catálogo salvo com sucesso! Arquivo: {filename}")

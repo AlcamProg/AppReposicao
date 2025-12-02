@@ -1,0 +1,13 @@
+{
+  "cliente": "natan",
+  "vendedor": "joao",
+  "contato_vendedor": "1323132132",
+  "pecas": [
+    {
+      "nome": "nome",
+      "codigo": "codigo",
+      "descricao": "descricao",
+      "imagem": "imagens/codigo.jpg"
+    }
+  ]
+}
