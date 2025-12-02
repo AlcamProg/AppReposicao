@@ -1,8 +1,6 @@
 import streamlit as st
 import json
 import urllib.parse
-
-import streamlit as st
 import base64
 
 st.set_page_config(page_title="ALCAM", layout="wide")
@@ -46,6 +44,14 @@ st.markdown(f"""
 # 1. Ler parâmetro ?cliente= na URL
 # -----------------------------------------------------------
 query_params = st.query_params
+
+# Se a rota for admin, pula totalmente a lógica de clientes
+if query_params.get("admin") == "criar":
+    # Importa ou chama sua página de administração
+    import admin_criar_catalogo
+    st.stop()
+
+# --- PROCESSO NORMAL DOS CLIENTES ---
 cliente_id = query_params.get("cliente", "")
 
 if cliente_id == "":
