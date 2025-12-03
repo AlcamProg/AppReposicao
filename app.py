@@ -23,7 +23,7 @@ query_params = st.query_params
 
 # Página ADMIN
 if query_params.get("admin") == "criar":
-    import pages.admin_criar_catalogo
+    import pages.admin
     st.stop()
 
 cliente_id = query_params.get("cliente", "")

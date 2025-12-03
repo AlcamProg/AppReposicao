@@ -10,7 +10,7 @@ st.set_page_config(page_title="Criar Catálogo", page_icon="📘")
 
 PASSWORD = "SV2024"
 
-# Caminhos dos arquivos
+# Caminhos
 PRODUTOS_FILE = "clientes/database.json"
 CLIENTES_DIR = "clientes"
 IMAGENS_DIR = "imagens"
@@ -38,34 +38,47 @@ def buscar_produto_por_codigo(produtos, codigo):
     return None
 
 # ===========================
-# AUTENTICAÇÃO
+# CONTROLE DE LOGIN
 # ===========================
-st.title("🔐 Área Restrita")
-senha = st.text_input("Digite a senha:", type="password")
+if "auth" not in st.session_state:
+    st.session_state.auth = False
 
-if senha != PASSWORD:
-    st.warning("Informe a senha correta.")
+# Se NÃO autenticado → mostrar login
+if not st.session_state.auth:
+    st.title("🔐 Área Restrita")
+
+    senha = st.text_input("Digite a senha:", type="password")
+
+    if st.button("Entrar"):
+        if senha == PASSWORD:
+            st.session_state.auth = True
+            st.success("Acesso liberado!")
+            st.rerun()
+        else:
+            st.error("Senha incorreta!")
+
     st.stop()
 
 # ===========================
-# FORMULÁRIO CLIENTE
+# ÁREA PRINCIPAL (APÓS LOGIN)
 # ===========================
 st.title("📘 Criar Catálogo")
 
+# FORMULÁRIO CLIENTE
 cliente = st.text_input("Nome do Cliente")
 vendedor = st.text_input("Nome do Vendedor")
 contato = st.text_input("Contato do Vendedor")
 
 st.subheader("🔧 Adicionar Peças ao Catálogo")
 
-# Sessão de peças do cliente
+# Sessão de peças
 if "pecas_cliente" not in st.session_state:
     st.session_state.pecas_cliente = []
 
-# Carregar base de produtos
+# Base de produtos
 produtos = carregar_produtos()
 
-# Formulário para buscar/cadastrar produto
+# Buscar produto existente
 codigo_busca = st.text_input("Código da Peça")
 
 if st.button("🔍 Buscar peça por código"):
@@ -76,13 +89,12 @@ if st.button("🔍 Buscar peça por código"):
 
         if produto:
             st.success(f"Produto encontrado: {produto['nome']}")
-            #st.image(produto["imagem"], width=150)
             st.session_state.pecas_cliente.append(produto)
         else:
             st.warning("Produto não encontrado. Cadastre abaixo.")
 
 # ===========================
-# FORMULÁRIO DE NOVO PRODUTO (SE NÃO EXISTIR)
+# CADASTRAR NOVO PRODUTO
 # ===========================
 st.markdown("### ➕ Cadastrar Novo Produto")
 
@@ -94,21 +106,12 @@ if st.button("💾 Salvar Novo Produto"):
     if not codigo_busca:
         st.error("Digite o CÓDIGO do novo produto acima.")
     elif not nome_novo or not descricao_novo or upload_novo is None:
-        st.error("Preencha todos os campos e envie uma imagem!")
+        st.error("Preencha todos os campos!")
     else:
-        # Salvar imagem
-       # ext = upload_novo.name.split(".")[-1]
-        #nome_img = f"{codigo_busca}.{ext}"
-        #caminho_img = os.path.join(IMAGENS_DIR, nome_img)
-
-        #img = Image.open(upload_novo)
-        #img.save(caminho_img)
-
         novo_produto = {
             "codigo": codigo_busca,
             "nome": nome_novo,
-            "descricao": descricao_novo,
-            #"imagem": caminho_img.replace("\\", "/")
+            "descricao": descricao_novo
         }
 
         produtos.append(novo_produto)
@@ -117,17 +120,15 @@ if st.button("💾 Salvar Novo Produto"):
         st.session_state.pecas_cliente.append(novo_produto)
 
         st.success("Produto cadastrado e adicionado ao catálogo!")
-        #st.image(novo_produto["imagem"], width=150)
 
 # ===========================
-# EXIBIR PEÇAS DO CLIENTE
+# LISTA DE PEÇAS ADICIONADAS
 # ===========================
-st.markdown("### 📄 Peças adicionadas ao catálogo do cliente")
+st.markdown("### 📄 Peças adicionadas ao catálogo")
 
 for i, p in enumerate(st.session_state.pecas_cliente):
     st.write(f"**{i+1}. {p['nome']}** — {p['codigo']}")
     st.write(p["descricao"])
-    #st.image(p["imagem"], width=120)
     st.write("---")
 
 # ===========================
@@ -151,4 +152,4 @@ if st.button("📁 Salvar Catálogo do Cliente"):
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
-        st.success(f"Catálogo salvo: {filename}")
+        st.success(f"Catálogo salvo em: {filename}")
