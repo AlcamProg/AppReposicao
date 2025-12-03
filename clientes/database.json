@@ -1,0 +1,254 @@
+[
+  {
+    "nome": "BASE DO ESTICADORa",
+    "codigo": "AC10294012-R00",
+    "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar.",
+    "imagem": "imagens/botao_emergencia.jpg"
+  },
+  {
+    "nome": "CHAPA DO ESTICADOR",
+    "codigo": "AC10294014-R00",
+    "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar.",
+    "imagem": "imagens/botao_emergencia.jpg"
+  },
+  {
+    "nome": "FUSO DE AJUSTE",
+    "codigo": "AC10294015-R00",
+    "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar.",
+    "imagem": "imagens/botao_emergencia.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DE PROTEÇÃO",
+    "codigo": "AC10294030-R00",
+    "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar.",
+    "imagem": "imagens/botao_emergencia.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DE PROTEÇÃO",
+    "codigo": "AC10294031-R00",
+    "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar.",
+    "imagem": "imagens/botao_emergencia.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DE PROTEÇÃO",
+    "codigo": "AC10294032-R00",
+    "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar.",
+    "imagem": "imagens/botao_emergencia.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DE PROTEÇÃO",
+    "codigo": "AC10294033-R00",
+    "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar.",
+    "imagem": "imagens/botao_emergencia.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DE PROTEÇÃO",
+    "codigo": "AC10294034-R00",
+    "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar.",
+    "imagem": "imagens/botao_emergencia.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DE PROTEÇÃO",
+    "codigo": "AC10294035-R00",
+    "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar.",
+    "imagem": "imagens/botao_emergencia.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DE PROTEÇÃO",
+    "codigo": "AC10294036-R00",
+    "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar.",
+    "imagem": "imagens/botao_emergencia.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DE PROTEÇÃO",
+    "codigo": "AC10294037-R00",
+    "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar.",
+    "imagem": "imagens/botao_emergencia.jpg"
+  },
+  {
+    "nome": "EIXO DO MOTOR",
+    "codigo": "AC10294118-R00",
+    "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar.",
+    "imagem": "imagens/botao_emergencia.jpg"
+  },
+  {
+    "nome": "BASE DO ESTICADOR",
+    "codigo": "AC10294121-R00",
+    "descricao": "BASE DO ESTICADOR",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "CHAPA DO ESTICADOR",
+    "codigo": "AC10294122-R00",
+    "descricao": "CHAPA DO ESTICADOR",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "FUSO DE AJUSTE",
+    "codigo": "AC10294123-R00",
+    "descricao": "FUSO DE AJUSTE",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "PORTA DA ESTEIRA DE SAÍDA",
+    "codigo": "AC10294129-R00",
+    "descricao": "PORTA DA ESTEIRA DE SAÍDA",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "CANTONEIRA DE FIXAÇÃO DA PORTA",
+    "codigo": "AC10294130-R00",
+    "descricao": "CANTONEIRA DE FIXAÇÃO DA PORTA",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DE PROTEÇÃO",
+    "codigo": "AC10294133-R00",
+    "descricao": "POLICARBONATO DE PROTEÇÃO",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DE PROTEÇÃO",
+    "codigo": "AC10294134-R00",
+    "descricao": "POLICARBONATO DE PROTEÇÃO",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DE PROTEÇÃO",
+    "codigo": "AC10294135-R00",
+    "descricao": "POLICARBONATO DE PROTEÇÃO",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "NYLON DE ACABAMENTO DA LONA",
+    "codigo": "AC10294226-R00",
+    "descricao": "NYLON DE ACABAMENTO DA LONA",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "NYLON DE ACABAMENTO DA LONA",
+    "codigo": "AC10294227-R00",
+    "descricao": "NYLON DE ACABAMENTO DA LONA",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "PLACA DE DESLIZE DA CORRENTE",
+    "codigo": "AC10294229-R00",
+    "descricao": "PLACA DE DESLIZE DA CORRENTE",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "VISOR DE FECHAMENTO DA CORRENTE",
+    "codigo": "AC10294230-R00",
+    "descricao": "VISOR DE FECHAMENTO DA CORRENTE",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "EIXO MOTOR",
+    "codigo": "AC10294232-R00",
+    "descricao": "EIXO MOTOR",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "EIXO MOVIDO",
+    "codigo": "AC10294233-R00",
+    "descricao": "EIXO MOVIDO",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DA PROTEÇÃO CURVADA",
+    "codigo": "AC10294249-R00",
+    "descricao": "POLICARBONATO DA PROTEÇÃO CURVADA",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DA PROTEÇÃO CURVADA",
+    "codigo": "AC10294250-R00",
+    "descricao": "POLICARBONATO DA PROTEÇÃO CURVADA",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DA PROTEÇÃO CURVADA",
+    "codigo": "AC10294251-R00",
+    "descricao": "POLICARBONATO DA PROTEÇÃO CURVADA",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DA PROTEÇÃO CURVADA",
+    "codigo": "AC10294253-R00",
+    "descricao": "POLICARBONATO DA PROTEÇÃO CURVADA",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "TRAVA DO ESTICADOR",
+    "codigo": "AC10294257-R00",
+    "descricao": "TRAVA DO ESTICADOR",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "APOIO DO ESTICADOR",
+    "codigo": "AC10294258-R00",
+    "descricao": "APOIO DO ESTICADOR",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "FUSO DE AJUSTE",
+    "codigo": "AC10294259-R00",
+    "descricao": "FUSO DE AJUSTE",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "POLICARBONATO DA PROTEÇÃO CURVADA",
+    "codigo": "AC10294263-R00",
+    "descricao": "POLICARBONATO DA PROTEÇÃO CURVADA",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "ENGRENAGEM SIMPLES",
+    "codigo": "AC10294271-R00",
+    "descricao": "ENGRENAGEM SIMPLES- PASSO 1/2″ ASA 40 – 16 DENTES",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "NYLON DE ACABAMENTO DA LONA",
+    "codigo": "AC10294272-R00",
+    "descricao": "NYLON DE ACABAMENTO DA LONA",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "SENSOR FOTOELÉTRICO",
+    "codigo": "AC30247500",
+    "descricao": "SENSOR FOTOELÉTRICO QS18VP6LPQ8",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "IONIZADOR",
+    "codigo": "AC30395500",
+    "descricao": "IONIZADOR – SERIE IZF10R",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "MOTOR 0,75CV",
+    "codigo": "AC20149500-R00",
+    "descricao": "MOTOR 0,75CV",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "SENSOR MAGNÉTICO",
+    "codigo": "AC20606500-R00",
+    "descricao": "SENSOR MAGNÉTICO 807139",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "SENSOR MAGNÉTICO ATIVADOR",
+    "codigo": "AC206075-R00",
+    "descricao": "SENSOR MAGNÉTICO 80136 ATIVADOR",
+    "imagem": "imagens/sem_imagem.jpg"
+  },
+  {
+    "nome": "REDUTOR FLX040",
+    "codigo": "AC20161501-R00",
+    "descricao": "REDUTOR FLX040",
+    "imagem": "imagens/sem_imagem.jpg"
+  }
+]
