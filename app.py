@@ -4,7 +4,11 @@ import urllib.parse
 
 from utils.images import img_to_base64
 from utils.clients import carregar_cliente
+from utils.importDatabase import carregar_database
 from components.header import render_header
+from components.wpp_button import render_wpp_button
+from components.peca import render_peca
+
 
 # -----------------------------------------------------------
 # CONFIG INICIAL
@@ -15,24 +19,6 @@ logo_base64 = img_to_base64("imagens/Logo.png")
 render_header(logo_base64)
 
 ADMIN_PASSWORD = "SV2024"
-
-# -----------------------------------------------------------
-# FUNÇÃO: Carregar database.json (base geral dos produtos)
-# -----------------------------------------------------------
-def carregar_database():
-    try:
-        with open("database/database.json", "r", encoding="utf-8") as f:
-            lista = json.load(f)
-
-        # converter para dict por código
-        return {item["codigo"]: item for item in lista}
-
-    except FileNotFoundError:
-        st.error("❌ O arquivo 'database.json' não foi encontrado em /database/")
-        return {}
-    except Exception as e:
-        st.error(f"Erro ao carregar database.json: {e}")
-        return {}
 
 # -----------------------------------------------------------
 # ESTILO DA TELA INICIAL
@@ -137,91 +123,14 @@ quantidades = {}
 
 st.subheader("📦 Lista de Peças Disponíveis")
 
-for peca in pecas:
+for idx, peca in enumerate(pecas):
     st.markdown("---")
-
-    col_img, col_info, col_sel = st.columns([1.4, 3, 1.1])
-
-    # Imagem
-    with col_img:
-        if peca.get("imagem"):
-            st.image(peca["imagem"], use_container_width=True)
-        else:
-            st.write("Sem imagem")
-
-    # Informações
-    with col_info:
-        st.write(f"### {peca['nome']}")
-        st.write(f"**Código:** {peca['codigo']}")
-        st.write(f"**Descrição:** {peca.get('descricao', '—')}")
-
-    # Seleção
-    with col_sel:
-        adicionar = st.checkbox("Selecionar", key=f"chk_{peca['codigo']}")
-        if adicionar:
-            qtd = st.number_input(
-                "Quantidade",
-                min_value=1,
-                step=1,
-                key=f"qtd_{peca['codigo']}"
-            )
-            pecas_selecionadas.append(peca)
-            quantidades[peca['codigo']] = qtd
+    render_peca(peca, idx, quantidades, pecas_selecionadas)
 
 if not pecas_selecionadas:
     st.warning("Selecione pelo menos uma peça para continuar.")
     st.stop()
 
-# -----------------------------------------------------------
-# 4. GERAR MENSAGEM PARA WHATSAPP
-# -----------------------------------------------------------
-texto_itens = ""
-for p in pecas_selecionadas:
-    cod = p["codigo"]
-    nome = p["nome"]
-    qtd = quantidades[cod]
-    texto_itens += f"- {nome} (código {cod}) — Quantidade: {qtd}\n"
-
-mensagem = f"""
-*Pedido de Reposição de Peças*  
-Cliente: {nome_cliente}
-
-*Itens Selecionados:*  
-{texto_itens}
-"""
-
-mensagem = urllib.parse.quote(mensagem)
-link_whatsapp = f"https://wa.me/{contato_vendedor}?text={mensagem}"
-mensagem = urllib.parse.quote(mensagem)
-link_whatsapp = f"https://wa.me/{contato_vendedor}?text={mensagem}"
-
-mensagem = urllib.parse.quote(mensagem)
-link_whatsapp = f"https://wa.me/{contato_vendedor}?text={mensagem}"
-
-st.markdown("""
-    <style>
-    .wpp-btn {
-        background-color: #25D366;
-        color: white !important;
-        padding: 12px 20px;
-        border-radius: 15px;
-        text-decoration: none !important;
-        font-weight: bold;
-        font-size: 20px;
-        display: inline-block;
-        margin-top: 15px;
-    }
-    .wpp-btn:hover {
-        background-color: #1ebe5d;
-        text-decoration: none !important; 
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-st.markdown(f"""
-    <a href="{link_whatsapp}" target="_blank" class="wpp-btn">
-        📲 Enviar Pedido via WhatsApp
-    </a>
-""", unsafe_allow_html=True)
-
-
+texto_itens = "\n".join([f"- {p['nome']} (código {p['codigo']}) — Quantidade: {quantidades[p['codigo']]}" for p in pecas_selecionadas])
+mensagem = f"Pedido de Reposição de Peças\nCliente: {nome_cliente}\n\nItens Selecionados:\n{texto_itens}"
+render_wpp_button(contato_vendedor, mensagem)
