@@ -192,11 +192,6 @@ Cliente: {nome_cliente}
 
 mensagem = urllib.parse.quote(mensagem)
 link_whatsapp = f"https://wa.me/{contato_vendedor}?text={mensagem}"
-mensagem = urllib.parse.quote(mensagem)
-link_whatsapp = f"https://wa.me/{contato_vendedor}?text={mensagem}"
-
-mensagem = urllib.parse.quote(mensagem)
-link_whatsapp = f"https://wa.me/{contato_vendedor}?text={mensagem}"
 
 st.markdown("""
     <style>
