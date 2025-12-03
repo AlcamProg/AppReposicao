@@ -47,6 +47,8 @@ descricao_peca = st.text_area("Descrição da Peça")
 # UPLOAD DA IMAGEM
 uploaded_image = st.file_uploader("Enviar imagem da peça", type=["png", "jpg", "jpeg"])
 
+
+
 if st.button("Adicionar Peça"):
     if not nome_peca or not codigo_peca:
         st.error("Nome e código da peça são obrigatórios!")
@@ -60,7 +62,7 @@ if st.button("Adicionar Peça"):
 
         # Definir nome do arquivo final
         img_extension = uploaded_image.name.split(".")[-1]
-        img_save_name = f"{codigo_peca}.{img_extension}"
+        img_save_name = f"{nome_peca}.{img_extension}"
         img_path = os.path.join("imagens", img_save_name)
 
         # Salvar a imagem enviada

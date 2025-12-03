@@ -4,11 +4,15 @@ import urllib.parse
 
 from utils.images import img_to_base64
 from utils.clients import carregar_cliente
+from utils.pecas import carregar_base_pecas     # 🔥 NOVO
 from components.header import render_header
 
+# -----------------------------------------------------------
+# CONFIG INICIAL
+# -----------------------------------------------------------
 st.set_page_config(page_title="ALCAM", layout="wide")
 
-# Renderizar o cabeçalho
+# Cabeçalho
 logo_base64 = img_to_base64("imagens/Logo.png")
 render_header(logo_base64)
 
@@ -36,14 +40,29 @@ if dados_cliente is None:
     st.error(f"❌ O cliente '{cliente_id}' não foi encontrado.")
     st.stop()
 
-nome_cliente = dados_cliente.get("nome", cliente_id)
+nome_cliente = dados_cliente.get("cliente", cliente_id)
 contato_vendedor = dados_cliente.get("contato_vendedor", "")
-pecas = dados_cliente.get("pecas", [])
+codigos_pecas = dados_cliente.get("pecas", [])
 
 # -----------------------------------------------------------
-# 3. Exibir lista de peças
+# 3. Carregar BASE GERAL DE PEÇAS
 # -----------------------------------------------------------
+pecas_bd = carregar_base_pecas()  # dict: {codigo: {...}}
 
+# Criar lista final das peças do cliente
+pecas = []
+
+for codigo in codigos_pecas:
+    if codigo in pecas_bd:
+        item = pecas_bd[codigo].copy()
+        item["codigo"] = codigo
+        pecas.append(item)
+    else:
+        st.warning(f"⚠ Peça '{codigo}' não encontrada na base geral.")
+
+# -----------------------------------------------------------
+# 4. Exibir lista de peças
+# -----------------------------------------------------------
 st.header(f"Reposição de Peças — {nome_cliente}")
 st.subheader("Selecione as peças desejadas abaixo:")
 
@@ -83,13 +102,13 @@ for peca in pecas:
             pecas_selecionadas.append(peca)
             quantidades[peca['codigo']] = qtd
 
-# Nenhuma peça?
+# Nenhuma peça selecionada
 if not pecas_selecionadas:
     st.warning("Selecione pelo menos uma peça para continuar.")
     st.stop()
 
 # -----------------------------------------------------------
-# 4. Criar mensagem e link do WhatsApp
+# 5. Criar mensagem e link do WhatsApp
 # -----------------------------------------------------------
 texto_itens = ""
 for p in pecas_selecionadas:
