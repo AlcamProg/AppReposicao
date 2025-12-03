@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 import os
+import urllib.parse
 
 CLIENTES_DIR = "clientes"
 
@@ -8,7 +9,6 @@ st.set_page_config(page_title="Clientes Cadastrados", page_icon="📋")
 st.title("Lista de Clientes Cadastrados")
 
 os.makedirs(CLIENTES_DIR, exist_ok=True)
-
 
 arquivos = [f for f in os.listdir(CLIENTES_DIR) if f.endswith(".json")]
 
@@ -41,21 +41,33 @@ for arq in arquivos:
         st.error(f"Erro ao ler {arq}: {e}")
 
 # ================================================
-# TABELA RESUMIDA
+# TABELA RESUMIDA COM LINKS
 # ================================================
 st.subheader("📊 Visão Geral")
-
 st.dataframe(clientes_dados, use_container_width=True)
 
+clientes_com_link = []
+for c in clientes_dados:
+    cliente_url = urllib.parse.quote(c["cliente"].lower().replace(" ", "_"))
+    link = f"[{c['cliente']}](\/?cliente={cliente_url})"
+    clientes_com_link.append({
+        "cliente": link,
+        "vendedor": c["vendedor"],
+        "qtd_pecas": c["qtd_pecas"]
+    })
+
+st.markdown(
+    "<style>td, th {padding: 10px}</style>",
+    unsafe_allow_html=True
+)
+
 # ================================================
-# CARDS DETALHADOS
+# CARDS DETALHADOS COM LINKS
 # ================================================
 st.subheader("🗂 Detalhes dos Clientes")
 
 for c in clientes_dados:
-    with st.container(border=True):
-        st.markdown(f"### 👤 **{c['cliente']}**")
-        st.write(f"**Vendedor:** {c['vendedor']}")
-        st.write(f"**Itens no catálogo:** {c['qtd_pecas']}")
-
-# RESETAR CAMPOS DO FORMULARIO APOS CADASTRO
+    cliente_url = urllib.parse.quote(c["cliente"].lower().replace(" ", "_"))
+    st.markdown(f"### 👤 [{c['cliente']}](\/?cliente={cliente_url})")
+    st.write(f"**Vendedor:** {c['vendedor']}")
+    st.write(f"**Itens no catálogo:** {c['qtd_pecas']}")
