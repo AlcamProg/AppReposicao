@@ -11,7 +11,7 @@ st.set_page_config(page_title="Criar Catálogo", page_icon="📘")
 PASSWORD = "SV2024"
 
 # Caminhos
-PRODUTOS_FILE = "clientes/database.json"
+PRODUTOS_FILE = "database/database.json"
 CLIENTES_DIR = "clientes"
 IMAGENS_DIR = "imagens"
 
