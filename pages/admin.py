@@ -108,18 +108,43 @@ if st.button("💾 Salvar Novo Produto"):
     elif not nome_novo or not descricao_novo or upload_novo is None:
         st.error("Preencha todos os campos!")
     else:
+
+        # ============================
+        # 1. Salvar imagem na pasta
+        # ============================
+        ext = upload_novo.name.split(".")[-1]
+        img_filename = f"{codigo_busca}.{ext}"
+        img_path = os.path.join(IMAGENS_DIR, img_filename)
+
+        image = Image.open(upload_novo)
+        image.save(img_path)
+
+        # Normalizar caminho (Windows -> Web)
+        img_path = img_path.replace("\\", "/")
+
+        # ============================
+        # 2. Criar produto completo
+        # ============================
         novo_produto = {
             "codigo": codigo_busca,
             "nome": nome_novo,
-            "descricao": descricao_novo
+            "descricao": descricao_novo,
+            "imagem": img_path
         }
 
+        # ============================
+        # 3. Salvar na base global
+        # ============================
         produtos.append(novo_produto)
         salvar_produtos(produtos)
 
+        # ============================
+        # 4. Adicionar ao catálogo atual
+        # ============================
         st.session_state.pecas_cliente.append(novo_produto)
 
         st.success("Produto cadastrado e adicionado ao catálogo!")
+
 
 # ===========================
 # LISTA DE PEÇAS ADICIONADAS
