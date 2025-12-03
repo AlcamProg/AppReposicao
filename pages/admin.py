@@ -167,12 +167,16 @@ for i, p in enumerate(st.session_state.pecas_cliente):
 # ===========================
 # SALVAR CATÁLOGO DO CLIENTE
 # ===========================
+# ===========================
+# SALVAR CATÁLOGO DO CLIENTE
+# ===========================
 if st.button("📁 Salvar Catálogo do Cliente"):
     if not cliente or not vendedor or not contato:
         st.error("Preencha os dados do cliente!")
     elif len(st.session_state.pecas_cliente) == 0:
         st.error("Adicione ao menos uma peça!")
     else:
+        # Montar JSON
         data = {
             "cliente": cliente,
             "vendedor": vendedor,
@@ -180,12 +184,59 @@ if st.button("📁 Salvar Catálogo do Cliente"):
             "pecas": st.session_state.pecas_cliente
         }
 
-        filename = f"{CLIENTES_DIR}/{cliente.replace(' ', '_').lower()}.json"
+        json_name = f"{cliente.replace(' ', '_').lower()}.json"
+        json_path_local = f"{CLIENTES_DIR}/{json_name}"
 
-        with open(filename, "w", encoding="utf-8") as f:
+        # Salva localmente (opcional mas útil no dev)
+        with open(json_path_local, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
-        st.success(f"Catálogo salvo em: {filename}")
+        st.success("Catálogo salvo localmente!")
 
+        # =====================================================
+        # ENVIA PARA O GITHUB (DEPLOY AUTOMÁTICO)
+        # =====================================================
+        import base64, requests
+
+        GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
+        GITHUB_REPO = st.secrets["GITHUB_REPO"]
+
+        url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/clientes/{json_name}"
+
+        # Codifica o JSON em base64
+        content_b64 = base64.b64encode(
+            json.dumps(data, indent=2, ensure_ascii=False).encode()
+        ).decode()
+
+        # Verifica se arquivo existe para pegar o SHA
+        get_file = requests.get(url, headers={
+            "Authorization": f"Bearer {GITHUB_TOKEN}"
+        })
+
+        sha = get_file.json().get("sha") if get_file.status_code == 200 else None
+
+        payload = {
+            "message": f"Atualizando catálogo do cliente {cliente}",
+            "content": content_b64
+        }
+
+        if sha:
+            payload["sha"] = sha
+
+        response = requests.put(
+            url,
+            headers={"Authorization": f"Bearer {GITHUB_TOKEN}"},
+            json=payload
+        )
+
+        if response.status_code in [200, 201]:
+            st.success("🎉 Catálogo enviado ao GitHub com sucesso!")
+            st.info("O Streamlit Cloud fará o deploy automaticamente em alguns segundos.")
+        else:
+            st.error("❌ Falha ao enviar ao GitHub!")
+            st.code(response.text)
+
+        # Reseta formulário
         st.session_state.reset = True
         st.rerun()
+
