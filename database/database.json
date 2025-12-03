@@ -1,6 +1,6 @@
 [
   {
-    "nome": "BASE DO ESTICADORa",
+    "nome": "BASE DO ESTICADORA",
     "codigo": "AC10294012-R00",
     "descricao": "Botão de parada de emergência 22mm, cabeça cogumelo, travamento por puxar."
   },
@@ -208,5 +208,15 @@
     "nome": "REDUTOR FLX040",
     "codigo": "AC20161501-R00",
     "descricao": "REDUTOR FLX040"
+  },
+  {
+    "codigo": "123",
+    "nome": "peca_teste1",
+    "descricao": "testando 123"
+  },
+  {
+    "codigo": "321",
+    "nome": "peca_teste2",
+    "descricao": "testando 321"
   }
 ]

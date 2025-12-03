@@ -57,3 +57,5 @@ for c in clientes_dados:
         st.markdown(f"### 👤 **{c['cliente']}**")
         st.write(f"**Vendedor:** {c['vendedor']}")
         st.write(f"**Itens no catálogo:** {c['qtd_pecas']}")
+
+# RESETAR CAMPOS DO FORMULARIO APOS CADASTRO

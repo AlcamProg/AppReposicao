@@ -1,0 +1,17 @@
+{
+  "cliente": "Schaeffler",
+  "vendedor": "Luiz",
+  "contato": "5515997266165",
+  "pecas": [
+    {
+      "codigo": "123",
+      "nome": "peca_teste1",
+      "descricao": "testando 123"
+    },
+    {
+      "codigo": "321",
+      "nome": "peca_teste2",
+      "descricao": "testando 321"
+    }
+  ]
+}
