@@ -236,5 +236,29 @@
     "nome": "chave seccionadora",
     "descricao": "chave seccionadora geral",
     "imagem": "imagens/codigo_seccionadora.jpg"
+  },
+  {
+    "codigo": "Codigo-Logo",
+    "nome": "Logo",
+    "descricao": "logo para teste",
+    "imagem": "imagens/Codigo-Logo.png"
+  },
+  {
+    "codigo": "peca_sem_foto",
+    "nome": "pecaSemFoto",
+    "descricao": "peca sem foto para teste",
+    "imagem": "imagens/peca_sem_foto.jpg"
+  },
+  {
+    "codigo": "teste_case",
+    "nome": "teste_case",
+    "descricao": "teste case",
+    "imagem": "imagens/teste_case.jpg"
+  },
+  {
+    "codigo": "teste camargo",
+    "nome": "teste camargo",
+    "descricao": "teste camargo",
+    "imagem": "imagens/teste camargo.jpg"
   }
 ]

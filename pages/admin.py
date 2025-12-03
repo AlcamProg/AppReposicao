@@ -10,7 +10,6 @@ st.set_page_config(page_title="Criar Catálogo", page_icon="📘")
 
 PASSWORD = "SV2024"
 
-# Caminhos
 PRODUTOS_FILE = "database/database.json"
 CLIENTES_DIR = "clientes"
 IMAGENS_DIR = "imagens"
@@ -43,43 +42,67 @@ def buscar_produto_por_codigo(produtos, codigo):
 if "auth" not in st.session_state:
     st.session_state.auth = False
 
-# Se NÃO autenticado → mostrar login
 if not st.session_state.auth:
     st.title("🔐 Área Restrita")
-
     senha = st.text_input("Digite a senha:", type="password")
 
     if st.button("Entrar"):
         if senha == PASSWORD:
             st.session_state.auth = True
-            st.success("Acesso liberado!")
             st.rerun()
         else:
             st.error("Senha incorreta!")
-
     st.stop()
 
 # ===========================
-# ÁREA PRINCIPAL (APÓS LOGIN)
+# INICIALIZAR VARIÁVEIS DE ESTADO SEGURAS
+# ===========================
+defaults = {
+    "cliente": "",
+    "vendedor": "",
+    "contato": "",
+    "codigo_busca": "",
+    "nome_novo": "",
+    "descricao_novo": "",
+    "pecas_cliente": [],
+    "reset": False
+}
+
+for key, value in defaults.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
+
+# ===========================
+# FUNÇÃO PARA LIMPAR FORMULÁRIO
+# ===========================
+def reset_form():
+    for key in defaults:
+        if key not in ["pecas_cliente"]:  # lista deve ser resetada separadamente
+            st.session_state[key] = ""
+    st.session_state.pecas_cliente = []
+    st.session_state.reset = False
+    st.rerun()
+
+# Quando salvar, ativa reset
+if st.session_state.reset:
+    reset_form()
+
+# ===========================
+# ÁREA PRINCIPAL
 # ===========================
 st.title("📘 Criar Catálogo")
 
 # FORMULÁRIO CLIENTE
-cliente = st.text_input("Nome do Cliente")
-vendedor = st.text_input("Nome do Vendedor")
-contato = st.text_input("Contato do Vendedor")
+cliente = st.text_input("Nome do Cliente", key="cliente")
+vendedor = st.text_input("Nome do Vendedor", key="vendedor")
+contato = st.text_input("Contato do Vendedor", key="contato")
 
 st.subheader("🔧 Adicionar Peças ao Catálogo")
 
-# Sessão de peças
-if "pecas_cliente" not in st.session_state:
-    st.session_state.pecas_cliente = []
-
-# Base de produtos
 produtos = carregar_produtos()
 
-# Buscar produto existente
-codigo_busca = st.text_input("Código da Peça")
+# Buscar peça existente
+codigo_busca = st.text_input("Código da Peça", key="codigo_busca")
 
 if st.button("🔍 Buscar peça por código"):
     if not codigo_busca:
@@ -98,8 +121,8 @@ if st.button("🔍 Buscar peça por código"):
 # ===========================
 st.markdown("### ➕ Cadastrar Novo Produto")
 
-nome_novo = st.text_input("Nome da Nova Peça")
-descricao_novo = st.text_area("Descrição da Nova Peça")
+nome_novo = st.text_input("Nome da Nova Peça", key="nome_novo")
+descricao_novo = st.text_area("Descrição da Nova Peça", key="descricao_novo")
 upload_novo = st.file_uploader("Imagem da Nova Peça", type=["png", "jpg", "jpeg"])
 
 if st.button("💾 Salvar Novo Produto"):
@@ -108,10 +131,6 @@ if st.button("💾 Salvar Novo Produto"):
     elif not nome_novo or not descricao_novo or upload_novo is None:
         st.error("Preencha todos os campos!")
     else:
-
-        # ============================
-        # 1. Salvar imagem na pasta
-        # ============================
         ext = upload_novo.name.split(".")[-1]
         img_filename = f"{codigo_busca}.{ext}"
         img_path = os.path.join(IMAGENS_DIR, img_filename)
@@ -119,12 +138,8 @@ if st.button("💾 Salvar Novo Produto"):
         image = Image.open(upload_novo)
         image.save(img_path)
 
-        # Normalizar caminho (Windows -> Web)
         img_path = img_path.replace("\\", "/")
 
-        # ============================
-        # 2. Criar produto completo
-        # ============================
         novo_produto = {
             "codigo": codigo_busca,
             "nome": nome_novo,
@@ -132,22 +147,15 @@ if st.button("💾 Salvar Novo Produto"):
             "imagem": img_path
         }
 
-        # ============================
-        # 3. Salvar na base global
-        # ============================
         produtos.append(novo_produto)
         salvar_produtos(produtos)
 
-        # ============================
-        # 4. Adicionar ao catálogo atual
-        # ============================
         st.session_state.pecas_cliente.append(novo_produto)
 
         st.success("Produto cadastrado e adicionado ao catálogo!")
 
-
 # ===========================
-# LISTA DE PEÇAS ADICIONADAS
+# PEÇAS ADICIONADAS
 # ===========================
 st.markdown("### 📄 Peças adicionadas ao catálogo")
 
@@ -178,3 +186,6 @@ if st.button("📁 Salvar Catálogo do Cliente"):
             json.dump(data, f, indent=2, ensure_ascii=False)
 
         st.success(f"Catálogo salvo em: {filename}")
+
+        st.session_state.reset = True
+        st.rerun()

@@ -1,0 +1,31 @@
+{
+  "cliente": "DANA",
+  "vendedor": "luiz",
+  "contato": "5515991294004",
+  "pecas": [
+    {
+      "codigo": "codigo_botao",
+      "nome": "Botao emergencia",
+      "descricao": "botao de emergencia banner",
+      "imagem": "imagens/codigo_botao.jpg"
+    },
+    {
+      "codigo": "codigo_rele",
+      "nome": "rele_seguranca",
+      "descricao": "rele de seguranca",
+      "imagem": "imagens/codigo_rele.jpg"
+    },
+    {
+      "codigo": "codigo_seccionadora",
+      "nome": "chave seccionadora",
+      "descricao": "chave seccionadora geral",
+      "imagem": "imagens/codigo_seccionadora.jpg"
+    },
+    {
+      "codigo": "Codigo-Logo",
+      "nome": "Logo",
+      "descricao": "logo para teste",
+      "imagem": "imagens/Codigo-Logo.png"
+    }
+  ]
+}

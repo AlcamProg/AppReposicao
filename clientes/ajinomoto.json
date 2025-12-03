@@ -1,0 +1,13 @@
+{
+  "cliente": "Ajinomoto",
+  "vendedor": "erica",
+  "contato": "5515991294004",
+  "pecas": [
+    {
+      "codigo": "peca_sem_foto",
+      "nome": "pecaSemFoto",
+      "descricao": "peca sem foto para teste",
+      "imagem": "imagens/peca_sem_foto.jpg"
+    }
+  ]
+}
