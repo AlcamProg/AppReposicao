@@ -260,5 +260,23 @@
     "nome": "teste camargo",
     "descricao": "teste camargo",
     "imagem": "imagens/teste camargo.jpg"
+  },
+  {
+    "codigo": "Botao Emergencia",
+    "nome": "Botao Emergencia",
+    "descricao": "Botao Emergencia",
+    "imagem": "imagens/Botao Emergencia.jpg"
+  },
+  {
+    "codigo": "Rele de Segurança",
+    "nome": "Rele de Segurança",
+    "descricao": "Rele de Segurança",
+    "imagem": "imagens/Rele de Segurança.jpg"
+  },
+  {
+    "codigo": "Chave seccionadora",
+    "nome": "Chave seccionadora",
+    "descricao": "Chave seccionadora",
+    "imagem": "imagens/Chave seccionadora.jpg"
   }
 ]
