@@ -278,5 +278,17 @@
     "nome": "Chave seccionadora",
     "descricao": "Chave seccionadora",
     "imagem": "imagens/Chave seccionadora.jpg"
+  },
+  {
+    "codigo": "4321",
+    "nome": "aaaaaaaaa",
+    "descricao": "aaaaaaaa",
+    "imagem": "imagens/4321.jpg"
+  },
+  {
+    "codigo": "1234",
+    "nome": "bbbbbbbb",
+    "descricao": "bbbbbbbbb",
+    "imagem": "imagens/1234.jpg"
   }
 ]
