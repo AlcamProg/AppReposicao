@@ -37,6 +37,28 @@ def buscar_produto_por_codigo(produtos, codigo):
             return p
     return None
 
+def github_upload(path, repo_path, message):
+    """Envia QUALQUER arquivo ao GitHub."""
+    GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
+    GITHUB_REPO = st.secrets["GITHUB_REPO"]
+    GITHUB_USER = st.secrets["GITHUB_USER"]
+    headers = {"Authorization": f"Bearer {GITHUB_TOKEN}"}
+
+    url = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/{repo_path}"
+
+    with open(path, "rb") as f:
+        content_b64 = base64.b64encode(f.read()).decode()
+
+    # Verifica se já existe para obter SHA
+    get_file = requests.get(url, headers=headers)
+    sha = get_file.json().get("sha") if get_file.status_code == 200 else None
+
+    payload = {"message": message, "content": content_b64}
+    if sha:
+        payload["sha"] = sha
+
+    return requests.put(url, headers=headers, json=payload)
+
 # ===========================
 # LOGIN
 # ===========================
@@ -56,7 +78,7 @@ if not st.session_state.auth:
     st.stop()
 
 # ===========================
-# SESSION STATE SEGURO
+# SESSION STATE
 # ===========================
 defaults = {
     "cliente": "",
@@ -66,7 +88,6 @@ defaults = {
     "nome_novo": "",
     "descricao_novo": "",
     "pecas_cliente": [],
-    "produtos_novos": [],   # << BUFFER DE NOVOS PRODUTOS
     "reset": False
 }
 
@@ -74,18 +95,20 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
-# Função de reset
 def reset_form():
     for key in defaults:
-        if key not in ["pecas_cliente", "produtos_novos"]:
+        if key != "pecas_cliente":
             st.session_state[key] = ""
     st.session_state.pecas_cliente = []
-    st.session_state.produtos_novos = []
     st.session_state.reset = False
     st.rerun()
 
 if st.session_state.reset:
     reset_form()
+
+# ===========================
+# INTERFACE
+# ===========================
 st.title("📘 Criar Catálogo")
 
 cliente = st.text_input("Nome do Cliente", key="cliente")
@@ -96,20 +119,23 @@ st.subheader("🔧 Adicionar Peças ao Catálogo")
 
 produtos = carregar_produtos()
 
-# Buscar peça existente
+# ------------------------------
+# BUSCAR PRODUTO EXISTENTE
+# ------------------------------
 codigo_busca = st.text_input("Código da Peça", key="codigo_busca")
 
 if st.button("🔍 Buscar peça por código"):
-    if not codigo_busca:
-        st.error("Digite um código!")
+    produto = buscar_produto_por_codigo(produtos, codigo_busca)
+    if produto:
+        st.success(f"Produto encontrado: {produto['nome']}")
+        st.session_state.pecas_cliente.append(produto)
     else:
-        produto = buscar_produto_por_codigo(produtos, codigo_busca)
+        st.warning("Produto não encontrado. Cadastre abaixo.")
 
-        if produto:
-            st.success(f"Produto encontrado: {produto['nome']}")
-            st.session_state.pecas_cliente.append(produto)
-        else:
-            st.warning("Produto não encontrado. Cadastre abaixo.")
+
+# ------------------------------
+# CADASTRAR NOVO PRODUTO
+# ------------------------------
 st.markdown("### ➕ Cadastrar Novo Produto")
 
 nome_novo = st.text_input("Nome da Nova Peça", key="nome_novo")
@@ -118,10 +144,12 @@ upload_novo = st.file_uploader("Imagem da Nova Peça", type=["png", "jpg", "jpeg
 
 if st.button("💾 Salvar Novo Produto"):
     if not codigo_busca:
-        st.error("Digite o CÓDIGO do novo produto acima.")
+        st.error("Digite o CÓDIGO do novo produto!")
     elif not nome_novo or not descricao_novo or upload_novo is None:
         st.error("Preencha todos os campos!")
     else:
+
+        # Salvar imagem localmente
         ext = upload_novo.name.split(".")[-1]
         img_filename = f"{codigo_busca}.{ext}"
         img_path = os.path.join(IMAGENS_DIR, img_filename)
@@ -129,33 +157,61 @@ if st.button("💾 Salvar Novo Produto"):
         image = Image.open(upload_novo)
         image.save(img_path)
 
-        img_path = img_path.replace("\\", "/")
-
+        # Criar produto
         novo_produto = {
             "codigo": codigo_busca,
             "nome": nome_novo,
             "descricao": descricao_novo,
-            "imagem": img_path
+            "imagem": f"imagens/{img_filename}"
         }
 
+        # Salvar local no database
         produtos.append(novo_produto)
         salvar_produtos(produtos)
 
+        # ---------------------------
+        # 🔥 UPLOAD IMEDIATO PARA O GITHUB
+        # ---------------------------
+        resp_img = github_upload(
+            img_path,
+            f"imagens/{img_filename}",
+            f"Adicionando imagem do produto {codigo_busca}"
+        )
+
+        if resp_img.status_code in [200, 201]:
+            st.success("📸 Imagem enviada ao GitHub!")
+        else:
+            st.error("Erro ao enviar imagem")
+            st.code(resp_img.text)
+
+        resp_db = github_upload(
+            PRODUTOS_FILE,
+            "database/database.json",
+            "Atualizando database.json após cadastrar produto"
+        )
+
+        if resp_db.status_code in [200, 201]:
+            st.success("📘 database.json atualizado no GitHub!")
+        else:
+            st.error("Erro ao enviar database.json")
+            st.code(resp_db.text)
+
         st.session_state.pecas_cliente.append(novo_produto)
-
-        # 🟦 GUARDAR PARA UPLOAD NO FINAL
-        st.session_state.produtos_novos.append({
-            "img_filename": img_filename,
-            "img_path": img_path
-        })
-
         st.success("Produto cadastrado e adicionado ao catálogo!")
+
+# ------------------------------
+# LISTA DE PEÇAS
+# ------------------------------
 st.markdown("### 📄 Peças adicionadas ao catálogo")
 
 for i, p in enumerate(st.session_state.pecas_cliente):
     st.write(f"**{i+1}. {p['nome']}** — {p['codigo']}")
     st.write(p["descricao"])
     st.write("---")
+
+# ------------------------------
+# SALVAR CATÁLOGO DO CLIENTE
+# ------------------------------
 if st.button("📁 Salvar Catálogo do Cliente"):
 
     if not cliente or not vendedor or not contato:
@@ -166,6 +222,7 @@ if st.button("📁 Salvar Catálogo do Cliente"):
         st.error("Adicione ao menos uma peça!")
         st.stop()
 
+    # Criar JSON exatamente no formato solicitado
     data = {
         "cliente": cliente,
         "vendedor": vendedor,
@@ -176,35 +233,20 @@ if st.button("📁 Salvar Catálogo do Cliente"):
     json_name = f"{cliente.replace(' ', '_').lower()}.json"
     json_path_local = f"{CLIENTES_DIR}/{json_name}"
 
+    # Salvar local
     with open(json_path_local, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
     st.success("Catálogo salvo localmente!")
 
-    # GITHUB PARAMS
-    GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]
-    GITHUB_REPO = st.secrets["GITHUB_REPO"]
-    GITHUB_USER = st.secrets["GITHUB_USER"]
-
-    headers = {"Authorization": f"Bearer {GITHUB_TOKEN}"}
-
     # ------------------------------
-    # UPLOAD arquivo JSON do cliente
+    # SUBIR ARQUIVO JSON DO CLIENTE NO GITHUB
     # ------------------------------
-    url_json = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/clientes/{json_name}"
-
-    content_b64 = base64.b64encode(
-        json.dumps(data, indent=2, ensure_ascii=False).encode()
-    ).decode()
-
-    get_json = requests.get(url_json, headers=headers)
-    sha_json = get_json.json().get("sha") if get_json.status_code == 200 else None
-
-    payload_json = {"message": f"Atualizando catálogo do cliente {cliente}", "content": content_b64}
-    if sha_json:
-        payload_json["sha"] = sha_json
-
-    resp_json = requests.put(url_json, headers=headers, json=payload_json)
+    resp_json = github_upload(
+        json_path_local,
+        f"clientes/{json_name}",
+        f"Salvando catálogo do cliente {cliente}"
+    )
 
     if resp_json.status_code in [200, 201]:
         st.success("🎉 Catálogo enviado ao GitHub!")
@@ -212,60 +254,7 @@ if st.button("📁 Salvar Catálogo do Cliente"):
         st.error("❌ Erro ao enviar catálogo")
         st.code(resp_json.text)
 
-    # ------------------------------
-    # UPLOAD database.json
-    # ------------------------------
-    db_url = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/database/database.json"
-
-    with open(PRODUTOS_FILE, "r", encoding="utf-8") as f:
-        db_content = f.read()
-
-    db_b64 = base64.b64encode(db_content.encode()).decode()
-
-    db_get = requests.get(db_url, headers=headers)
-    db_sha = db_get.json().get("sha") if db_get.status_code == 200 else None
-
-    db_payload = {"message": "Atualizando database.json", "content": db_b64}
-    if db_sha:
-        db_payload["sha"] = db_sha
-
-    db_resp = requests.put(db_url, headers=headers, json=db_payload)
-
-    if db_resp.status_code in [200, 201]:
-        st.success("📘 database.json atualizado!")
-    else:
-        st.error("Erro ao enviar database.json")
-        st.code(db_resp.text)
-
-    # ------------------------------
-    # UPLOAD das imagens dos PRODUTOS NOVOS
-    # ------------------------------
-    for item in st.session_state.produtos_novos:
-        img_filename = item["img_filename"]
-        img_path = item["img_path"]
-
-        img_url = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/imagens/{img_filename}"
-
-        with open(img_path, "rb") as img_file:
-            img_b64 = base64.b64encode(img_file.read()).decode()
-
-        img_get = requests.get(img_url, headers=headers)
-        img_sha = img_get.json().get("sha") if img_get.status_code == 200 else None
-
-        img_payload = {"message": f"Enviando imagem {img_filename}", "content": img_b64}
-        if img_sha:
-            img_payload["sha"] = img_sha
-
-        img_resp = requests.put(img_url, headers=headers, json=img_payload)
-
-        if img_resp.status_code in [200, 201]:
-            st.success(f"📸 Imagem enviada: {img_filename}")
-        else:
-            st.error(f"Erro ao enviar {img_filename}")
-            st.code(img_resp.text)
-
     st.success("🎯 Catálogo completo enviado ao GitHub!")
 
-    # RESET
     st.session_state.reset = True
     st.rerun()
