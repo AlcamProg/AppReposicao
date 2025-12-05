@@ -308,5 +308,11 @@
     "nome": "peca1",
     "descricao": "peca1",
     "imagem": "imagens/Peca1.jpg"
+  },
+  {
+    "codigo": "Peca2",
+    "nome": "peca2",
+    "descricao": "peca2",
+    "imagem": "imagens/Peca2.jpg"
   }
 ]
