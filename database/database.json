@@ -302,5 +302,11 @@
     "nome": "ccccccccc",
     "descricao": "ccccccc1",
     "imagem": "imagens/6843541668.jpg"
+  },
+  {
+    "codigo": "Peca1",
+    "nome": "peca1",
+    "descricao": "peca1",
+    "imagem": "imagens/Peca1.jpg"
   }
 ]
