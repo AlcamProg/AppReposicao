@@ -18,7 +18,7 @@ st.set_page_config(page_title="ALCAM", layout="wide")
 logo_base64 = img_to_base64("imagens/Logo.png")
 render_header(logo_base64)
 
-ADMIN_PASSWORD = "SV2024"
+ADMIN_PASSWORD = st.secrects("ADMIN_PASSWORD")
 
 # -----------------------------------------------------------
 # ESTILO DA TELA INICIAL

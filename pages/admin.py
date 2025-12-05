@@ -8,7 +8,7 @@ from PIL import Image
 # ===========================
 st.set_page_config(page_title="Criar Catálogo", page_icon="📘")
 
-PASSWORD = "SV2024"
+PASSWORD = st.secrect("ADMIN_PASSWORD")
 
 PRODUTOS_FILE = "database/database.json"
 CLIENTES_DIR = "clientes"
