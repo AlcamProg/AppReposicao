@@ -1,25 +1,25 @@
 {
   "cliente": "DANA",
-  "vendedor": "Luiz",
+  "vendedor": "Joao",
   "contato": "5515997266165",
   "pecas": [
+    {
+      "codigo": "Peca1",
+      "nome": "peca1",
+      "descricao": "peca1",
+      "imagem": "imagens/Peca1.jpg"
+    },
+    {
+      "codigo": "Peca2",
+      "nome": "peca2",
+      "descricao": "peca2",
+      "imagem": "imagens/Peca2.jpg"
+    },
     {
       "codigo": "Botao Emergencia",
       "nome": "Botao Emergencia",
       "descricao": "Botao Emergencia",
       "imagem": "imagens/Botao Emergencia.jpg"
-    },
-    {
-      "codigo": "Rele de Segurança",
-      "nome": "Rele de Segurança",
-      "descricao": "Rele de Segurança",
-      "imagem": "imagens/Rele de Segurança.jpg"
-    },
-    {
-      "codigo": "Chave seccionadora",
-      "nome": "Chave seccionadora",
-      "descricao": "Chave seccionadora",
-      "imagem": "imagens/Chave seccionadora.jpg"
     }
   ]
 }
