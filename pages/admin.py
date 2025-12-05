@@ -9,7 +9,11 @@ import base64, requests
 # ===========================
 st.set_page_config(page_title="Criar Catálogo", page_icon="📘")
 
+<<<<<<< HEAD
 PASSWORD = "SV2024"
+=======
+PASSWORD = st.secrets["ADMIN_PASSWORD"]
+>>>>>>> 1c8b390 (Fit: att do password)
 
 PRODUTOS_FILE = "database/database.json"
 CLIENTES_DIR = "clientes"
