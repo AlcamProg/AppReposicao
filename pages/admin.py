@@ -49,7 +49,6 @@ def github_upload(path, repo_path, message):
     with open(path, "rb") as f:
         content_b64 = base64.b64encode(f.read()).decode()
 
-    # Verifica se já existe para obter SHA
     get_file = requests.get(url, headers=headers)
     sha = get_file.json().get("sha") if get_file.status_code == 200 else None
 
@@ -132,7 +131,6 @@ if st.button("🔍 Buscar peça por código"):
     else:
         st.warning("Produto não encontrado. Cadastre abaixo.")
 
-
 # ------------------------------
 # CADASTRAR NOVO PRODUTO
 # ------------------------------
@@ -149,47 +147,34 @@ if st.button("💾 Salvar Novo Produto"):
         st.error("Preencha todos os campos!")
     else:
 
-     # ============
-     # SALVAR IMAGEM COM EXTENSÃO REAL E VERIFICADA
-     # ============
-
-        # Extensão original do arquivo enviado
+        # Salvar imagem com extensão correta
         orig_ext = upload_novo.name.split(".")[-1].lower()
 
-        # Forçar para extensões válidas
         if orig_ext not in ["png", "jpg", "jpeg"]:
             st.error("Formato de imagem inválido! Use PNG, JPG ou JPEG.")
             st.stop()
 
-        #   Normalize extensões jpeg → jpg
         if orig_ext == "jpeg":
             orig_ext = "jpg"
 
-        # Nome final da imagem
         img_filename = f"{codigo_busca}.{orig_ext}"
         img_path = os.path.join(IMAGENS_DIR, img_filename)
 
-        # Salvar imagem
         image = Image.open(upload_novo)
         image.save(img_path)
 
-        # ============
-        # CRIAR PRODUTO COM CAMINHO 100% CORRETO
-        # ============
+        # Criar produto
         novo_produto = {
             "codigo": codigo_busca,
             "nome": nome_novo,
             "descricao": descricao_novo,
-            "imagem": os.path.join(IMAGENS_DIR, img_filename).replace("\\", "/")
+            "imagem": f"imagens/{img_filename}"
         }
 
-        # Salvar local no database
         produtos.append(novo_produto)
         salvar_produtos(produtos)
 
-        # ---------------------------
-        # 🔥 UPLOAD IMEDIATO PARA O GITHUB
-        # ---------------------------
+        # Uploads GitHub
         resp_img = github_upload(
             img_path,
             f"imagens/{img_filename}",
@@ -218,14 +203,26 @@ if st.button("💾 Salvar Novo Produto"):
         st.success("Produto cadastrado e adicionado ao catálogo!")
 
 # ------------------------------
-# LISTA DE PEÇAS
+# LISTA DE PEÇAS + REMOVER ITEM
 # ------------------------------
 st.markdown("### 📄 Peças adicionadas ao catálogo")
 
-for i, p in enumerate(st.session_state.pecas_cliente):
-    st.write(f"**{i+1}. {p['nome']}** — {p['codigo']}")
-    st.write(p["descricao"])
-    st.write("---")
+if len(st.session_state.pecas_cliente) == 0:
+    st.info("Nenhuma peça adicionada ainda.")
+else:
+    for i, p in enumerate(st.session_state.pecas_cliente):
+
+        with st.container(border=True):
+            st.write(f"**{p['nome']}** — {p['codigo']}")
+            st.write(p["descricao"])
+
+            col1, col2 = st.columns([5, 1])
+            with col2:
+                if st.button("🗑 Remover", key=f"remove_{i}"):
+                    st.session_state.pecas_cliente.pop(i)
+                    st.rerun()
+
+        st.write("")
 
 # ------------------------------
 # SALVAR CATÁLOGO DO CLIENTE
@@ -240,7 +237,6 @@ if st.button("📁 Salvar Catálogo do Cliente"):
         st.error("Adicione ao menos uma peça!")
         st.stop()
 
-    # Criar JSON exatamente no formato solicitado
     data = {
         "cliente": cliente,
         "vendedor": vendedor,
@@ -251,15 +247,11 @@ if st.button("📁 Salvar Catálogo do Cliente"):
     json_name = f"{cliente.replace(' ', '_').lower()}.json"
     json_path_local = f"{CLIENTES_DIR}/{json_name}"
 
-    # Salvar local
     with open(json_path_local, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
     st.success("Catálogo salvo localmente!")
 
-    # ------------------------------
-    # SUBIR ARQUIVO JSON DO CLIENTE NO GITHUB
-    # ------------------------------
     resp_json = github_upload(
         json_path_local,
         f"clientes/{json_name}",
