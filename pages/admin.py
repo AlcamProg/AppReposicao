@@ -157,6 +157,9 @@ if st.button("💾 Salvar Novo Produto"):
         if orig_ext == "jpeg":
             orig_ext = "jpg"
 
+        if orig_ext == "png":
+            orig_ext = "jpg"
+
         img_filename = f"{codigo_busca}.{orig_ext}"
         img_path = os.path.join(IMAGENS_DIR, img_filename)
 
