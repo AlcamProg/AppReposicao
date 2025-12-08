@@ -154,10 +154,7 @@ if st.button("💾 Salvar Novo Produto"):
             st.error("Formato de imagem inválido! Use PNG, JPG ou JPEG.")
             st.stop()
 
-        if orig_ext == "jpeg":
-            orig_ext = "jpg"
-
-        if orig_ext == "png":
+        if orig_ext == "jpeg" or "png":
             orig_ext = "jpg"
 
         img_filename = f"{codigo_busca}.{orig_ext}"
