@@ -149,20 +149,38 @@ if st.button("💾 Salvar Novo Produto"):
         st.error("Preencha todos os campos!")
     else:
 
-        # Salvar imagem localmente
-        ext = upload_novo.name.split(".")[-1]
-        img_filename = f"{codigo_busca}.{ext}"
+     # ============
+     # SALVAR IMAGEM COM EXTENSÃO REAL E VERIFICADA
+     # ============
+
+        # Extensão original do arquivo enviado
+        orig_ext = upload_novo.name.split(".")[-1].lower()
+
+        # Forçar para extensões válidas
+        if orig_ext not in ["png", "jpg", "jpeg"]:
+            st.error("Formato de imagem inválido! Use PNG, JPG ou JPEG.")
+            st.stop()
+
+        #   Normalize extensões jpeg → jpg
+        if orig_ext == "jpeg":
+            orig_ext = "jpg"
+
+        # Nome final da imagem
+        img_filename = f"{codigo_busca}.{orig_ext}"
         img_path = os.path.join(IMAGENS_DIR, img_filename)
 
+        # Salvar imagem
         image = Image.open(upload_novo)
         image.save(img_path)
 
-        # Criar produto
+        # ============
+        # CRIAR PRODUTO COM CAMINHO 100% CORRETO
+        # ============
         novo_produto = {
             "codigo": codigo_busca,
             "nome": nome_novo,
             "descricao": descricao_novo,
-            "imagem": f"imagens/{img_filename}"
+            "imagem": os.path.join(IMAGENS_DIR, img_filename).replace("\\", "/")
         }
 
         # Salvar local no database
