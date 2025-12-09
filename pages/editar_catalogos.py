@@ -18,14 +18,12 @@ def carregar_produtos():
     with open(PRODUTOS_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
-
 # --------------------------------------------------
 # Função para carregar catálogo existente
 # --------------------------------------------------
 def carregar_catalogo(caminho):
     with open(caminho, "r", encoding="utf-8") as f:
         return json.load(f)
-
 
 # --------------------------------------------------
 # Função para salvar catálogo atualizado
@@ -34,135 +32,126 @@ def salvar_catalogo(caminho, dados):
     with open(caminho, "w", encoding="utf-8") as f:
         json.dump(dados, f, indent=4, ensure_ascii=False)
 
-
 # --------------------------------------------------
 # ABA: EDITAR CATÁLOGOS JÁ CRIADOS
 # --------------------------------------------------
-    st.header("🛠 Editar Catálogos Existentes")
+st.header("🛠 Editar Catálogos Existentes")
 
-    # --------------------------------------------------
-    # LISTAR CATÁLOGOS EXISTENTES
-    # --------------------------------------------------
-    arquivos = [
-        f for f in os.listdir(CATALOGOS_DIR)
-        if f.endswith(".json")
-    ]
+# --------------------------------------------------
+# LISTAR CATÁLOGOS EXISTENTES
+# --------------------------------------------------
+if not os.path.exists(CATALOGOS_DIR):
+    st.warning("A pasta 'catalogos' não existe.")
+    st.stop()
 
-    if len(arquivos) == 0:
-        st.warning("Nenhum catálogo encontrado na pasta.")
-        return
+arquivos = [f for f in os.listdir(CATALOGOS_DIR) if f.endswith(".json")]
 
-    nome_catalogo = st.selectbox("Selecione um catálogo:", arquivos)
+if len(arquivos) == 0:
+    st.warning("Nenhum catálogo encontrado na pasta.")
+    st.stop()
 
-    caminho_catalogo = os.path.join(CATALOGOS_DIR, nome_catalogo)
+nome_catalogo = st.selectbox("Selecione um catálogo:", arquivos)
 
-    # Carregar catálogo quando selecionado
-    catalogo = carregar_catalogo(caminho_catalogo)
+caminho_catalogo = os.path.join(CATALOGOS_DIR, nome_catalogo)
 
-    if "pecas" not in catalogo:
-        st.error("Esse catálogo não possui o formato esperado (sem 'pecas').")
-        return
+# Carregar catálogo selecionado
+catalogo = carregar_catalogo(caminho_catalogo)
 
-    if "cliente" not in catalogo:
-        catalogo["cliente"] = ""
+if "pecas" not in catalogo:
+    st.error("Esse catálogo não possui o formato esperado (sem 'pecas').")
+    st.stop()
 
-    st.text_input("Nome do cliente:", value=catalogo["cliente"], key="cliente_edit")
+if "cliente" not in catalogo:
+    catalogo["cliente"] = ""
 
-    st.markdown("---")
-    st.subheader("Peças do catálogo")
+cliente_edit = st.text_input("Nome do cliente:", value=catalogo["cliente"])
 
-    # --------------------------------------------------
-    # LISTAR E EDITAR CADA PEÇA
-    # --------------------------------------------------
-    remover_indices = []
+st.markdown("---")
+st.subheader("Peças do catálogo")
 
-    for i, p in enumerate(catalogo["pecas"]):
+# --------------------------------------------------
+# LISTAR E EDITAR CADA PEÇA
+# --------------------------------------------------
+remover_indices = []
 
-        with st.container(border=True):
-            st.write(f"### {p['nome']} ({p['codigo']})")
+for i, p in enumerate(catalogo["pecas"]):
 
-            # Editar textos
-            novo_nome = st.text_input("Nome:", value=p["nome"], key=f"nome_{i}")
-            nova_desc = st.text_area("Descrição:", value=p["descricao"], key=f"desc_{i}")
+    with st.container():
+        st.write(f"### {p['nome']} ({p['codigo']})")
 
-            # Atualizar no objeto
-            p["nome"] = novo_nome
-            p["descricao"] = nova_desc
+        # Editar textos
+        novo_nome = st.text_input("Nome:", value=p["nome"], key=f"nome_{i}")
+        nova_desc = st.text_area("Descrição:", value=p["descricao"], key=f"desc_{i}")
 
-            # Editar imagem
-            st.write("Imagem atual:")
-            st.image(p["imagem"], width=200)
+        p["nome"] = novo_nome
+        p["descricao"] = nova_desc
 
-            nova_img = st.file_uploader("Nova imagem (opcional)", key=f"img_{i}")
+        # Editar imagem
+        st.write("Imagem atual:")
+        st.image(p["imagem"], width=200)
 
-            if nova_img:
-                ext = nova_img.name.split(".")[-1].lower()
-                if ext == "jpeg":
-                    ext = "jpg"
+        nova_img = st.file_uploader("Nova imagem (opcional)", key=f"img_{i}")
 
-                img_filename = f"{p['codigo']}.{ext}"
-                img_path = os.path.join(IMAGENS_DIR, img_filename)
+        if nova_img:
+            ext = nova_img.name.split(".")[-1].lower()
+            if ext == "jpeg": ext = "jpg"
 
-                image = Image.open(nova_img)
-                image.save(img_path)
-
-                p["imagem"] = f"{IMAGENS_DIR}/{img_filename}"
-
-            # Botão de remoção
-            if st.button("🗑 Remover peça", key=f"remove_{i}"):
-                remover_indices.append(i)
-
-    # Remover após loop (segurança)
-    for idx in sorted(remover_indices, reverse=True):
-        catalogo["pecas"].pop(idx)
-
-    st.markdown("---")
-
-    # --------------------------------------------------
-    # ADICIONAR NOVA PEÇA AO CATÁLOGO
-    # --------------------------------------------------
-    st.subheader("Adicionar nova peça ao catálogo")
-
-    codigo_novo = st.text_input("Código da peça:")
-    nome_novo = st.text_input("Nome da peça:")
-    desc_novo = st.text_area("Descrição:")
-    img_nova = st.file_uploader("Imagem:", type=["png", "jpg", "jpeg"])
-
-    if st.button("Adicionar peça"):
-        if not codigo_novo or not nome_novo or not img_nova:
-            st.error("Preencha todos os campos e envie uma imagem.")
-        else:
-            ext = img_nova.name.split(".")[-1].lower()
-            if ext == "jpeg":
-                ext = "jpg"
-
-            img_filename = f"{codigo_novo}.{ext}"
+            img_filename = f"{p['codigo']}.{ext}"
             img_path = os.path.join(IMAGENS_DIR, img_filename)
 
-            image = Image.open(img_nova)
+            image = Image.open(nova_img)
             image.save(img_path)
 
-            nova_peca = {
-                "codigo": codigo_novo,
-                "nome": nome_novo,
-                "descricao": desc_novo,
-                "imagem": f"{IMAGENS_DIR}/{img_filename}"
-            }
+            p["imagem"] = f"{IMAGENS_DIR}/{img_filename}"
 
-            catalogo["pecas"].append(nova_peca)
-            st.success("Peça adicionada com sucesso!")
-            st.rerun()
+        # Botão de remoção
+        if st.button("🗑 Remover peça", key=f"remove_{i}"):
+            remover_indices.append(i)
 
-    # --------------------------------------------------
-    # SALVAR ALTERAÇÕES
-    # --------------------------------------------------
-    if st.button("💾 Salvar catálogo"):
-        catalogo["cliente"] = st.session_state.cliente_edit
-        salvar_catalogo(caminho_catalogo, catalogo)
-        st.success("Catálogo atualizado com sucesso!")
+# Remover peças selecionadas
+for idx in sorted(remover_indices, reverse=True):
+    catalogo["pecas"].pop(idx)
 
+st.markdown("---")
 
 # --------------------------------------------------
-# CHAMAR FUNÇÃO
+# ADICIONAR NOVA PEÇA AO CATÁLOGO
 # --------------------------------------------------
+st.subheader("Adicionar nova peça ao catálogo")
 
+codigo_novo = st.text_input("Código da peça:")
+nome_novo = st.text_input("Nome da peça:")
+desc_novo = st.text_area("Descrição:")
+img_nova = st.file_uploader("Imagem:", type=["png", "jpg", "jpeg"])
+
+if st.button("Adicionar peça"):
+    if not codigo_novo or not nome_novo or not img_nova:
+        st.error("Preencha todos os campos e envie uma imagem.")
+    else:
+        ext = img_nova.name.split(".")[-1].lower()
+        if ext == "jpeg": ext = "jpg"
+
+        img_filename = f"{codigo_novo}.{ext}"
+        img_path = os.path.join(IMAGENS_DIR, img_filename)
+
+        image = Image.open(img_nova)
+        image.save(img_path)
+
+        nova_peca = {
+            "codigo": codigo_novo,
+            "nome": nome_novo,
+            "descricao": desc_novo,
+            "imagem": f"{IMAGENS_DIR}/{img_filename}"
+        }
+
+        catalogo["pecas"].append(nova_peca)
+        st.success("Peça adicionada com sucesso!")
+        st.rerun()
+
+# --------------------------------------------------
+# SALVAR ALTERAÇÕES
+# --------------------------------------------------
+if st.button("💾 Salvar catálogo"):
+    catalogo["cliente"] = cliente_edit
+    salvar_catalogo(caminho_catalogo, catalogo)
+    st.success("Catálogo atualizado com sucesso!")
