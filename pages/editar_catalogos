@@ -3,11 +3,12 @@ import json
 import os
 from PIL import Image
 
+st.set_page_config(page_title="Editar Catálogo", page_icon="📘")
+
+
 CATALOGOS_DIR = "catalogos"
 IMAGENS_DIR = "imagens"
 PRODUTOS_FILE = "database/database.json"
-
-st.set_page_config(page_title="Editar Catálogo", page_icon="📘")
 
 # --------------------------------------------------
 # Função para carregar produtos
