@@ -146,8 +146,9 @@ for i, p in enumerate(catalogo["pecas"]):
                         prod["descricao"] = desc_input
                         if img_filename:
                             prod["imagem"] = f"imagens/{img_filename}"
-                        break
+                    break
                 salvar_produtos(produtos)
+
 
                 resp_db = github_upload(
                     PRODUTOS_FILE,
