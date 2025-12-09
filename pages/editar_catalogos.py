@@ -147,7 +147,7 @@ if st.button("Adicionar peça"):
         st.error("Preencha todos os campos e envie uma imagem.")
     else:
         ext = img_nova.name.split(".")[-1].lower()
-        if ext == "jpeg":
+        if ext == "jpeg" or "png":
             ext = "jpg"
 
         img_filename = f"{codigo_novo}.{ext}"
