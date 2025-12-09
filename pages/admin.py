@@ -4,23 +4,23 @@ import os
 from PIL import Image
 import base64, requests
 
-# ===========================
-# CONFIGURAÇÕES
-# ===========================
-st.set_page_config(page_title="Criar Catálogo", page_icon="📘")
+st.set_page_config(page_title="Editar Catálogo", page_icon="📘")
 
-PASSWORD = st.secrets["ADMIN_PASSWORD"]
-
-PRODUTOS_FILE = "database/database.json"
-CLIENTES_DIR = "clientes"
+CATALOGOS_DIR = "clientes"
 IMAGENS_DIR = "imagens"
+PRODUTOS_FILE = "database/database.json"
 
-os.makedirs(CLIENTES_DIR, exist_ok=True)
-os.makedirs(IMAGENS_DIR, exist_ok=True)
+# --------------------------------------------------
+# Funções auxiliares
+# --------------------------------------------------
+def carregar_catalogo(caminho):
+    with open(caminho, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-# ===========================
-# FUNÇÕES AUXILIARES
-# ===========================
+def salvar_catalogo(caminho, dados):
+    with open(caminho, "w", encoding="utf-8") as f:
+        json.dump(dados, f, indent=4, ensure_ascii=False)
+
 def carregar_produtos():
     if not os.path.exists(PRODUTOS_FILE):
         return []
@@ -30,12 +30,6 @@ def carregar_produtos():
 def salvar_produtos(produtos):
     with open(PRODUTOS_FILE, "w", encoding="utf-8") as f:
         json.dump(produtos, f, indent=2, ensure_ascii=False)
-
-def buscar_produto_por_codigo(produtos, codigo):
-    for p in produtos:
-        if p["codigo"] == codigo:
-            return p
-    return None
 
 def github_upload(path, repo_path, message):
     """Envia QUALQUER arquivo ao GitHub."""
@@ -58,129 +52,172 @@ def github_upload(path, repo_path, message):
 
     return requests.put(url, headers=headers, json=payload)
 
-# ===========================
-# LOGIN
-# ===========================
-if "auth" not in st.session_state:
-    st.session_state.auth = False
+# --------------------------------------------------
+# Página
+# --------------------------------------------------
+st.header("🛠 Editar Catálogos Existentes")
 
-if not st.session_state.auth:
-    st.title("🔐 Área Restrita")
-    senha = st.text_input("Digite a senha:", type="password")
-
-    if st.button("Entrar"):
-        if senha == PASSWORD:
-            st.session_state.auth = True
-            st.rerun()
-        else:
-            st.error("Senha incorreta!")
+if not os.path.exists(CATALOGOS_DIR):
+    st.warning(f"A pasta '{CATALOGOS_DIR}' não existe.")
     st.stop()
 
-# ===========================
-# SESSION STATE
-# ===========================
-defaults = {
-    "cliente": "",
-    "vendedor": "",
-    "contato": "",
-    "codigo_busca": "",
-    "nome_novo": "",
-    "descricao_novo": "",
-    "pecas_cliente": [],
-    "reset": False
-}
+arquivos = [f for f in os.listdir(CATALOGOS_DIR) if f.endswith(".json")]
+if len(arquivos) == 0:
+    st.warning("Nenhum catálogo encontrado na pasta.")
+    st.stop()
 
-for key, value in defaults.items():
-    if key not in st.session_state:
-        st.session_state[key] = value
+nome_catalogo = st.selectbox("Selecione um catálogo:", arquivos)
+caminho_catalogo = os.path.join(CATALOGOS_DIR, nome_catalogo)
 
-def reset_form():
-    for key in defaults:
-        if key != "pecas_cliente":
-            st.session_state[key] = ""
-    st.session_state.pecas_cliente = []
-    st.session_state.reset = False
+catalogo = carregar_catalogo(caminho_catalogo)
+
+if "pecas" not in catalogo:
+    st.error("Esse catálogo não possui o formato esperado (sem 'pecas').")
+    st.stop()
+
+catalogo.setdefault("cliente", "")
+
+cliente_edit = st.text_input("Nome do cliente:", value=catalogo["cliente"])
+
+st.markdown("---")
+st.subheader("Peças do catálogo")
+
+remover_indices = []
+
+for i, p in enumerate(catalogo["pecas"]):
+    with st.expander(f"{p.get('nome', 'Sem nome')} — {p.get('codigo', '')}", expanded=False):
+        form_key = f"form_peca_{i}"
+        with st.form(key=form_key):
+            nome_input = st.text_input("Nome:", value=p.get("nome", ""), key=f"nome_{i}")
+            desc_input = st.text_area("Descrição:", value=p.get("descricao", ""), key=f"desc_{i}")
+
+            st.write("Imagem atual:")
+            imagem_atual = p.get("imagem", None)
+            if imagem_atual and os.path.exists(imagem_atual):
+                st.image(imagem_atual, width=200)
+            else:
+                st.info("Nenhuma imagem cadastrada para esta peça.")
+
+            nova_img = st.file_uploader("Nova imagem (opcional)", type=["png", "jpg", "jpeg"], key=f"img_{i}")
+
+            confirmar = st.form_submit_button("Confirmar alterações")
+            remover = st.form_submit_button("Remover peça")
+
+            if remover:
+                remover_indices.append(i)
+                st.success("Peça marcada para remoção. Clique em 'Salvar catálogo' para confirmar.")
+                st.rerun()
+
+            if confirmar:
+                catalogo["pecas"][i]["nome"] = nome_input
+                catalogo["pecas"][i]["descricao"] = desc_input
+
+                img_filename = None
+                if nova_img is not None:
+                    ext = nova_img.name.split(".")[-1].lower()
+                    if ext == "jpeg":
+                        ext = "jpg"
+                    img_filename = f"{p.get('codigo', i)}.{ext}"
+                    img_path = os.path.join(IMAGENS_DIR, img_filename)
+
+                    os.makedirs(IMAGENS_DIR, exist_ok=True)
+
+                    image = Image.open(nova_img)
+                    image.save(img_path)
+
+                    catalogo["pecas"][i]["imagem"] = f"{IMAGENS_DIR}/{img_filename}"
+
+                    resp_img = github_upload(
+                        img_path,
+                        f"imagens/{img_filename}",
+                        f"Atualizando imagem da peça {p.get('codigo', i)}"
+                    )
+                    if resp_img.status_code in [200, 201]:
+                        st.success("📸 Imagem atualizada no GitHub!")
+                    else:
+                        st.error("Erro ao atualizar imagem no GitHub")
+                        st.code(resp_img.text)
+
+                # Atualizar também no database.json
+                produtos = carregar_produtos()
+                for prod in produtos:
+                    if prod["codigo"] == p.get("codigo"):
+                        prod["nome"] = nome_input
+                        prod["descricao"] = desc_input
+                        if img_filename:
+                            prod["imagem"] = f"imagens/{img_filename}"
+                        break
+                salvar_produtos(produtos)
+
+                resp_db = github_upload(
+                    PRODUTOS_FILE,
+                    "database/database.json",
+                    f"Atualizando produto {p.get('codigo')} no database.json"
+                )
+                if resp_db.status_code in [200, 201]:
+                    st.success("📘 database.json atualizado no GitHub!")
+                else:
+                    st.error("Erro ao enviar database.json")
+                    st.code(resp_db.text)
+
+                st.success("Alterações aplicadas localmente. Clique em 'Salvar catálogo' para gravar no arquivo.")
+                st.rerun()
+
+if remover_indices:
+    for idx in sorted(remover_indices, reverse=True):
+        p_to_remove = catalogo["pecas"][idx]
+        img_path = p_to_remove.get("imagem")
+        if img_path and os.path.exists(img_path):
+            try:
+                os.remove(img_path)
+            except Exception:
+                pass
+        catalogo["pecas"].pop(idx)
+    st.success("Peças removidas localmente. Clique em 'Salvar catálogo' para gravar no arquivo.")
     st.rerun()
 
-if st.session_state.reset:
-    reset_form()
+st.markdown("---")
+st.subheader("Adicionar nova peça ao catálogo")
 
-# ===========================
-# INTERFACE
-# ===========================
-st.title("📘 Criar Catálogo")
+codigo_novo = st.text_input("Código da peça (nova):", key="codigo_novo")
+nome_novo = st.text_input("Nome da peça (nova):", key="nome_novo")
+desc_novo = st.text_area("Descrição (nova):", key="desc_novo")
+img_nova = st.file_uploader("Imagem (nova):", type=["png", "jpg", "jpeg"], key="img_nova")
 
-cliente = st.text_input("Nome do Cliente", key="cliente")
-vendedor = st.text_input("Nome do Vendedor", key="vendedor")
-contato = st.text_input("Contato do Vendedor", key="contato")
-
-st.subheader("🔧 Adicionar Peças ao Catálogo")
-
-produtos = carregar_produtos()
-
-# ------------------------------
-# BUSCAR PRODUTO EXISTENTE
-# ------------------------------
-codigo_busca = st.text_input("Código da Peça", key="codigo_busca")
-
-if st.button("🔍 Buscar peça por código"):
-    produto = buscar_produto_por_codigo(produtos, codigo_busca)
-    if produto:
-        st.success(f"Produto encontrado: {produto['nome']}")
-        st.session_state.pecas_cliente.append(produto)
+if st.button("Adicionar peça"):
+    if not codigo_novo or not nome_novo or not img_nova:
+        st.error("Preencha todos os campos e envie uma imagem.")
     else:
-        st.warning("Produto não encontrado. Cadastre abaixo.")
+        ext = img_nova.name.split(".")[-1].lower()
+        if ext == "jpeg":
+            ext = "jpg"
 
-# ------------------------------
-# CADASTRAR NOVO PRODUTO
-# ------------------------------
-st.markdown("### ➕ Cadastrar Novo Produto")
-
-nome_novo = st.text_input("Nome da Nova Peça", key="nome_novo")
-descricao_novo = st.text_area("Descrição da Nova Peça", key="descricao_novo")
-upload_novo = st.file_uploader("Imagem da Nova Peça", type=["png", "jpg", "jpeg"])
-
-if st.button("💾 Salvar Novo Produto"):
-    if not codigo_busca:
-        st.error("Digite o CÓDIGO do novo produto!")
-    elif not nome_novo or not descricao_novo or upload_novo is None:
-        st.error("Preencha todos os campos!")
-    else:
-
-        # Salvar imagem com extensão correta
-        orig_ext = upload_novo.name.split(".")[-1].lower()
-
-        if orig_ext not in ["png", "jpg", "jpeg"]:
-            st.error("Formato de imagem inválido! Use PNG, JPG ou JPEG.")
-            st.stop()
-
-        if orig_ext == "jpeg" or "png":
-            orig_ext = "jpg"
-
-        img_filename = f"{codigo_busca}.{orig_ext}"
+        img_filename = f"{codigo_novo}.{ext}"
         img_path = os.path.join(IMAGENS_DIR, img_filename)
 
-        image = Image.open(upload_novo)
+        os.makedirs(IMAGENS_DIR, exist_ok=True)
+
+        image = Image.open(img_nova)
         image.save(img_path)
 
-        # Criar produto
-        novo_produto = {
-            "codigo": codigo_busca,
+        nova_peca = {
+            "codigo": codigo_novo,
             "nome": nome_novo,
-            "descricao": descricao_novo,
-            "imagem": f"imagens/{img_filename}"
+            "descricao": desc_novo,
+            "imagem": f"{IMAGENS_DIR}/{img_filename}"
         }
 
-        produtos.append(novo_produto)
+        catalogo["pecas"].append(nova_peca)
+
+        produtos = carregar_produtos()
+        produtos.append(nova_peca)
         salvar_produtos(produtos)
 
-        # Uploads GitHub
         resp_img = github_upload(
             img_path,
             f"imagens/{img_filename}",
-            f"Adicionando imagem do produto {codigo_busca}"
+            f"Adicionando imagem da peça {codigo_novo}"
         )
-
         if resp_img.status_code in [200, 201]:
             st.success("📸 Imagem enviada ao GitHub!")
         else:
@@ -190,81 +227,13 @@ if st.button("💾 Salvar Novo Produto"):
         resp_db = github_upload(
             PRODUTOS_FILE,
             "database/database.json",
-            "Atualizando database.json após cadastrar produto"
+            f"Atualizando database.json após adicionar produto {codigo_novo}"
         )
-
         if resp_db.status_code in [200, 201]:
             st.success("📘 database.json atualizado no GitHub!")
         else:
             st.error("Erro ao enviar database.json")
             st.code(resp_db.text)
 
-        st.session_state.pecas_cliente.append(novo_produto)
-        st.success("Produto cadastrado e adicionado ao catálogo!")
-
-# ------------------------------
-# LISTA DE PEÇAS + REMOVER ITEM
-# ------------------------------
-st.markdown("### 📄 Peças adicionadas ao catálogo")
-
-if len(st.session_state.pecas_cliente) == 0:
-    st.info("Nenhuma peça adicionada ainda.")
-else:
-    for i, p in enumerate(st.session_state.pecas_cliente):
-
-        with st.container(border=True):
-            st.write(f"**{p['nome']}** — {p['codigo']}")
-            st.write(p["descricao"])
-
-            col1, col2 = st.columns([5, 1])
-            with col2:
-                if st.button("🗑 Remover", key=f"remove_{i}"):
-                    st.session_state.pecas_cliente.pop(i)
-                    st.rerun()
-
-        st.write("")
-
-# ------------------------------
-# SALVAR CATÁLOGO DO CLIENTE
-# ------------------------------
-if st.button("📁 Salvar Catálogo do Cliente"):
-
-    if not cliente or not vendedor or not contato:
-        st.error("Preencha os dados do cliente!")
-        st.stop()
-
-    if len(st.session_state.pecas_cliente) == 0:
-        st.error("Adicione ao menos uma peça!")
-        st.stop()
-
-    data = {
-        "cliente": cliente,
-        "vendedor": vendedor,
-        "contato": contato,
-        "pecas": st.session_state.pecas_cliente
-    }
-
-    json_name = f"{cliente.replace(' ', '_').lower()}.json"
-    json_path_local = f"{CLIENTES_DIR}/{json_name}"
-
-    with open(json_path_local, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-
-    st.success("Catálogo salvo localmente!")
-
-    resp_json = github_upload(
-        json_path_local,
-        f"clientes/{json_name}",
-        f"Salvando catálogo do cliente {cliente}"
-    )
-
-    if resp_json.status_code in [200, 201]:
-        st.success("🎉 Catálogo enviado ao GitHub!")
-    else:
-        st.error("❌ Erro ao enviar catálogo")
-        st.code(resp_json.text)
-
-    st.success("🎯 Catálogo completo enviado ao GitHub!")
-
-    st.session_state.reset = True
-    st.rerun()
+        st.success("Peça adicionada com sucesso! Clique em 'Salvar catálogo' para gravar no arquivo.")
+        st.rerun
