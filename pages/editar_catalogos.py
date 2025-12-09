@@ -5,7 +5,6 @@ from PIL import Image
 
 st.set_page_config(page_title="Editar Catálogo", page_icon="📘")
 
-
 CATALOGOS_DIR = "catalogos"
 IMAGENS_DIR = "imagens"
 PRODUTOS_FILE = "database/database.json"
@@ -39,8 +38,6 @@ def salvar_catalogo(caminho, dados):
 # --------------------------------------------------
 # ABA: EDITAR CATÁLOGOS JÁ CRIADOS
 # --------------------------------------------------
-def aba_editar_catalogos():
-
     st.header("🛠 Editar Catálogos Existentes")
 
     # --------------------------------------------------
@@ -168,4 +165,4 @@ def aba_editar_catalogos():
 # --------------------------------------------------
 # CHAMAR FUNÇÃO
 # --------------------------------------------------
-# Basta chamar aba_editar_catalogos() dentro do seu sistema de abas
+
