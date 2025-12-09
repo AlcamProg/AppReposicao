@@ -88,7 +88,7 @@ for i, p in enumerate(catalogo["pecas"]):
                 remover_indices.append(i)
                 st.success("Peça marcada para remoção. Clique em 'Salvar catálogo' para confirmar.")
                 # força rerun para mostrar que operação foi registrada
-                st.experimental_rerun()
+                st.rerun()
 
             # Ação de confirmar alterações
             if confirmar:
@@ -114,7 +114,7 @@ for i, p in enumerate(catalogo["pecas"]):
 
                 st.success("Alterações aplicadas localmente. Clique em 'Salvar catálogo' para gravar no arquivo.")
                 # rerun para atualizar visual com novas informações
-                st.experimental_rerun()
+                st.rerun()
 
 # Após iterar, remover índices (se houver)
 if remover_indices:
@@ -131,7 +131,7 @@ if remover_indices:
                 pass
         catalogo["pecas"].pop(idx)
     st.success("Peças removidas localmente. Clique em 'Salvar catálogo' para gravar no arquivo.")
-    st.experimental_rerun()
+    st.rerun()
 
 st.markdown("---")
 st.subheader("Adicionar nova peça ao catálogo")
@@ -167,7 +167,7 @@ if st.button("Adicionar peça"):
 
         catalogo["pecas"].append(nova_peca)
         st.success("Peça adicionada com sucesso! Clique em 'Salvar catálogo' para gravar no arquivo.")
-        st.experimental_rerun()
+        st.rerun()
 
 st.markdown("---")
 
@@ -176,4 +176,4 @@ if st.button("💾 Salvar catálogo"):
     catalogo["cliente"] = cliente_edit
     salvar_catalogo(caminho_catalogo, catalogo)
     st.success("Catálogo atualizado com sucesso!")
-    st.experimental_rerun()
+    sst.rerun()
