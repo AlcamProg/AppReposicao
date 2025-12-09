@@ -88,7 +88,13 @@ for i, p in enumerate(catalogo["pecas"]):
 
         # Editar imagem
         st.write("Imagem atual:")
-        st.image(p["imagem"], width=200)
+
+        imagem_atual = p.get("imagem", None)
+
+        if imagem_atual and os.path.exists(imagem_atual):
+            st.image(imagem_atual, width=200)
+        else:
+            st.info("Nenhuma imagem cadastrada para esta peça.")
 
         nova_img = st.file_uploader("Nova imagem (opcional)", key=f"img_{i}")
 
