@@ -176,4 +176,4 @@ if st.button("💾 Salvar catálogo"):
     catalogo["cliente"] = cliente_edit
     salvar_catalogo(caminho_catalogo, catalogo)
     st.success("Catálogo atualizado com sucesso!")
-    sst.rerun()
+    st.rerun()
