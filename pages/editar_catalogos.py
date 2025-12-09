@@ -5,7 +5,7 @@ from PIL import Image
 
 st.set_page_config(page_title="Editar Catálogo", page_icon="📘")
 
-CATALOGOS_DIR = "catalogos"
+CATALOGOS_DIR = "clientes"
 IMAGENS_DIR = "imagens"
 PRODUTOS_FILE = "database/database.json"
 
